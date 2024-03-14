@@ -57,4 +57,8 @@ jobs:
     lookup-only: # optional, default is false
     # Run the post step to save the cache even if another step before fails
     save-always: # optional, default is false
-          
+
+              - name: OpenCommit — improve commits with AI 🧙
+                uses: di-sukharev/opencommit@github-action-v1.0.2
+
+            
