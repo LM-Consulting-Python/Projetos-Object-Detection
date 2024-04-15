@@ -1,16 +1,25 @@
-# Importação das bibliotecas necessárias
-import pytesseract  # Biblioteca para integração com Tesseract OCR
-import PIL.Image    # Módulo Pillow para manipulação de imagens
-import cv2           # OpenCV para processamento de imagens
+# Importing required libraries
+import pytesseract
+from PIL import Image
+import cv2
 
-# Configuração do Tesseract OCR
-myconfig = r"--psm 1 --oem 3"  # Configuração específica do Tesseract
+try:
+    # Tesseract configuration
+    myconfig = r"--psm 1 --oem 3"  # Specific Tesseract configuration
 
-# Caminho para a imagem a ser processada
-image_path = r'C:\Users\Felipe LM\Documents\GitHub\Projetos-Object-Detection\Extract Text from Images (OCR)\texto.png'
+    # Image path
+    image_path = r'/Users/felipelm/Documents/GitHub/Projetos-Object-Detection/Extract Text from Images (OCR)/texto.png'
 
-# Realiza o OCR na imagem usando Tesseract
-text = pytesseract.image_to_string(PIL.Image.open(image_path), config=myconfig)
+    # Check if the file exists
+    if not os.path.isfile(image_path):
+        print(f"Error: The file {image_path} does not exist.")
+        exit()
 
-# Exibe o texto reconhecido
-print("Texto Reconhecido:\n", text)
+    # Perform OCR on the image using Tesseract
+    text = pytesseract.image_to_string(Image.open(image_path), config=myconfig)
+
+    # Print the recognized text
+    print("Recognized Text:\n", text)
+
+except ModuleNotFoundError as e:
+    print(f"Error: The required library is missing. Please install {e.name}.")
