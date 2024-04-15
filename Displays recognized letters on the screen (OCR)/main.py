@@ -1,38 +1,40 @@
-# Importação das bibliotecas necessárias
-import pytesseract  # Biblioteca para integração com Tesseract OCR
-from pytesseract import Output
-import PIL.Image    # Módulo Pillow para manipulação de imagens
-import cv2           # OpenCV para processamento de imagens
+# Importing required libraries
+import pytesseract
+from PIL import Image
+import cv2
 
-# Configuração do Tesseract OCR
-myconfig = r"--psm 1 --oem 3"  # Configuração específica do Tesseract
+# Configuring Tesseract OCR
+pytesseract.pytesseract.tesseract_cmd = r'<full_path_to_tesseract_executable>'
+config = ("-l eng --psm 6")  # Using English language and setting page segmentation mode
 
-# Caminho para a imagem a ser processada
-image_path = r'C:\Users\Felipe LM\Documents\GitHub\Projetos-Object-Detection\Extract Text from Images (OCR)\texto.png'
+# Path to the image to be processed
+image_path = r'<full_path_to_image_file>'
 
-# Lê a imagem com OpenCV
-img = cv2.imread(image_path)
-height, width, _ = img.shape
+# Reading the image with OpenCV
+image = cv2.imread(image_path)
+height, width, _ = image.shape
 
-# Utiliza pytesseract para obter dados de texto na imagem
-data = pytesseract.image_to_data(img, config=myconfig, output_type=Output.DICT)
+# Pre-processing the image for better OCR results
+image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+image = cv2.GaussianBlur(image, (5, 5), 0)
 
-# Obtém a quantidade de caixas de texto encontradas
-amount_boxes = len(data['text'])
+# Using pytesseract to extract text from the image
+text = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT, config=config)
 
-# Itera sobre as caixas de texto
-for i in range(amount_boxes):
-    # Filtra caixas de texto com confiança maior que 20
-    if float(data['conf'][i]) > 20:
-        # Obtém coordenadas e dimensões da caixa
-        (x, y, width, height) = (data['left'][i], data['top'][i], data['width'][i], data['height'][i])
+# Iterating through the found text boxes
+for i in range(len(text['text'])):
+    # Filtering text boxes with confidence greater than 60
+    if int(text['conf'][i]) > 60:
+        # Getting coordinates and dimensions of the text box
+        (x, y, width, height) = (text['left'][i], text['top'][i], text['width'][i], text['height'][i])
 
-        # Desenha um retângulo ao redor da caixa de texto
-        img = cv2.rectangle(img, (x, y), (x+width, y+height), (0, 255, 0), 2)
+        # Drawing a rectangle around the text box
+        image = cv2.rectangle(image, (x, y), (x+width, y+height), (0, 255, 0), 2)
 
-        # Adiciona texto reconhecido à imagem
-        img = cv2.putText(img, data['text'][i], (x, y+height+20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+        # Adding recognized text to the image
+        image = cv2.putText(image, text['text'][i], (x, y+height+20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
 
-# Exibe a imagem com as caixas de texto e texto reconhecido
-cv2.imshow("img", img)
+# Displaying the image with text boxes and recognized text
+cv2.imshow("Image", image)
 cv2.waitKey(0)
+cv2.destroyAllWindows()
